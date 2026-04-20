@@ -3,25 +3,17 @@ package ru.mephi.vikingdemo.gui;
 import ru.mephi.vikingdemo.model.Viking;
 import ru.mephi.vikingdemo.service.VikingService;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.SwingConstants;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Font;
-
+import javax.swing.*;
+import java.awt.*;
 
 public class VikingDesktopFrame extends JFrame {
 
     private final VikingService vikingService;
-    private final VikingTableModel tableModel = new VikingTableModel();
+    private final VikingTableModel tableModel;
 
-    public VikingDesktopFrame(VikingService vikingService) {
+    public VikingDesktopFrame(VikingService vikingService, VikingTableModel tableModel) {
         this.vikingService = vikingService;
+        this.tableModel = tableModel;
 
         setTitle("Viking Demo");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -46,11 +38,10 @@ public class VikingDesktopFrame extends JFrame {
     }
 
     private void onCreateViking() {
-        Viking viking = vikingService.createRandomViking();
-        tableModel.addViking(viking);
+        vikingService.createRandomViking();
     }
-    
-    public void addNewViking(Viking viking){
+
+    public void addNewViking(Viking viking) {
         tableModel.addViking(viking);
     }
 }
