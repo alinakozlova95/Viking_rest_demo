@@ -33,15 +33,15 @@ public class VikingController {
         return vikingService.findAll();
     }
 
-    @GetMapping("/{name}")
-    @Operation(summary = "Получить викинга по имени", operationId = "getVikingByName")
+    @GetMapping("/{index}")
+    @Operation(summary = "Получить викинга по индексу", operationId = "getVikingByIndex")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Викинг найден"),
         @ApiResponse(responseCode = "404", description = "Викинг не найден")
     })
-    public ResponseEntity<Viking> getVikingByName(@PathVariable String name) {
-        System.out.println("GET /api/vikings/" + name + " called");
-        return vikingService.findByName(name)
+    public ResponseEntity<Viking> getVikingByIndex(@PathVariable int index) {
+        System.out.println("GET /api/vikings/" + index + " called");
+        return vikingService.findByIndex(index)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -63,16 +63,16 @@ public class VikingController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
-    @PutMapping("/{name}")
-    @Operation(summary = "Обновить викинга по имени", operationId = "updateViking")
+    @PutMapping("/{index}")
+    @Operation(summary = "Обновить викинга по индексу", operationId = "updateViking")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Викинг успешно обновлен"),
         @ApiResponse(responseCode = "404", description = "Викинг не найден")
     })
-    public ResponseEntity<Viking> updateViking(@PathVariable String name, @RequestBody Viking updatedViking) {
-        System.out.println("PUT /api/vikings/" + name + " called");
+    public ResponseEntity<Viking> updateViking(@PathVariable int index, @RequestBody Viking updatedViking) {
+        System.out.println("PUT /api/vikings/" + index + " called");
         
-        boolean updated = vikingService.updateViking(name, updatedViking);
+        boolean updated = vikingService.updateVikingByIndex(index, updatedViking);
         if (updated) {
             return ResponseEntity.ok(updatedViking);
         } else {
@@ -80,16 +80,16 @@ public class VikingController {
         }
     }
 
-    @DeleteMapping("/{name}")
-    @Operation(summary = "Удалить викинга по имени", operationId = "deleteViking")
+    @DeleteMapping("/{index}")
+    @Operation(summary = "Удалить викинга по индексу", operationId = "deleteViking")
     @ApiResponses({
         @ApiResponse(responseCode = "204", description = "Викинг успешно удален"),
         @ApiResponse(responseCode = "404", description = "Викинг не найден")
     })
-    public ResponseEntity<Void> deleteViking(@PathVariable String name) {
-        System.out.println("DELETE /api/vikings/" + name + " called");
+    public ResponseEntity<Void> deleteViking(@PathVariable int index) {
+        System.out.println("DELETE /api/vikings/" + index + " called");
         
-        boolean deleted = vikingService.deleteByName(name);
+        boolean deleted = vikingService.deleteByIndex(index);
         if (deleted) {
             return ResponseEntity.noContent().build();
         } else {

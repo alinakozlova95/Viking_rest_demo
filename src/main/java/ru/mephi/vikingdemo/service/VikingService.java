@@ -32,6 +32,13 @@ public class VikingService {
                 .findFirst();
     }
 
+    public Optional<Viking> findByIndex(int index) {
+        if (index >= 0 && index < vikings.size()) {
+            return Optional.of(vikings.get(index));
+        }
+        return Optional.empty();
+    }
+
     public Viking createRandomViking() {
         Viking viking = vikingFactory.createRandomViking();
         vikings.add(viking);
@@ -65,6 +72,20 @@ public class VikingService {
         return removed;
     }
 
+    public boolean deleteByIndex(int index) {
+        if (index < 0 || index >= vikings.size()) {
+            return false;
+        }
+        
+        Viking removedViking = vikings.remove(index);
+
+        if (tableModel != null) {
+            tableModel.removeViking(removedViking);
+        }
+        
+        return true;
+    }
+
     public boolean updateViking(String name, Viking newVikingData) {
         for (int i = 0; i < vikings.size(); i++) {
             if (vikings.get(i).name().equalsIgnoreCase(name)) {
@@ -79,5 +100,20 @@ public class VikingService {
             }
         }
         return false;
+    }
+
+    public boolean updateVikingByIndex(int index, Viking newVikingData) {
+        if (index < 0 || index >= vikings.size()) {
+            return false;
+        }
+        
+        Viking oldViking = vikings.get(index);
+        vikings.set(index, newVikingData);
+
+        if (tableModel != null) {
+            tableModel.updateViking(oldViking, newVikingData);
+        }
+        
+        return true;
     }
 }
