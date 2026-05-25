@@ -13,7 +13,7 @@ public class VikingController {
 
     private final VikingService vikingService;
 
-    public VikingController(VikingService vikingService, VikingListener vikingListener) {
+    public VikingController(VikingService vikingService) {
         this.vikingService = vikingService;
     }
 
