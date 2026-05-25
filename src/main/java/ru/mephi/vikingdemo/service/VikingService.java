@@ -1,119 +1,103 @@
 package ru.mephi.vikingdemo.service;
-
 import org.springframework.stereotype.Service;
+import ru.mephi.vikingdemo.controller.VikingListener;
 import ru.mephi.vikingdemo.model.Viking;
-import ru.mephi.vikingdemo.gui.VikingTableModel;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.*;
 
 @Service
 public class VikingService {
-    private final CopyOnWriteArrayList<Viking> vikings = new CopyOnWriteArrayList<>();
+
     private final VikingFactory vikingFactory;
-    private VikingTableModel tableModel; 
+    private final Map<Integer, Viking> storage = new HashMap<>();
+    private int nextId = 1;
+
+    
+    private VikingListener vikingListener;
 
     public VikingService(VikingFactory vikingFactory) {
         this.vikingFactory = vikingFactory;
     }
 
-    public void setTableModel(VikingTableModel tableModel) {
-        this.tableModel = tableModel;
+  
+    public void setVikingListener(VikingListener vikingListener) {
+        this.vikingListener = vikingListener;
     }
-    
+
     public List<Viking> findAll() {
-        return List.copyOf(vikings);
-    }
-
-    public Optional<Viking> findByName(String name) {
-        return vikings.stream()
-                .filter(v -> v.name().equalsIgnoreCase(name))
-                .findFirst();
-    }
-
-    public Optional<Viking> findByIndex(int index) {
-        if (index >= 0 && index < vikings.size()) {
-            return Optional.of(vikings.get(index));
-        }
-        return Optional.empty();
-    }
-
-    public Viking createRandomViking() {
-        Viking viking = vikingFactory.createRandomViking();
-        vikings.add(viking);
-
-        if (tableModel != null) {
-            tableModel.addViking(viking);
-        }
-        
-        return viking;
+        return new ArrayList<>(storage.values());
     }
 
     public Viking addViking(Viking viking) {
-        vikings.add(viking);
+        Viking withId = new Viking(
+                nextId++,
+                viking.name(),
+                viking.age(),
+                viking.heightCm(),
+                viking.hairColor(),
+                viking.beardStyle(),
+                viking.equipment()
+        );
 
-        if (tableModel != null) {
-            tableModel.addViking(viking);
-        }
+        storage.put(withId.id(), withId);
+
         
-        return viking;
+        if (vikingListener != null) {
+            vikingListener.onVikingCreated(withId);
+        }
+
+        return withId;
     }
 
-    public boolean deleteByName(String name) {
-        Optional<Viking> vikingToDelete = findByName(name);
-        
-        boolean removed = vikings.removeIf(v -> v.name().equalsIgnoreCase(name));
+    public Viking createRandomViking() {
+        Viking v = vikingFactory.createRandomViking();
 
-        if (removed && tableModel != null && vikingToDelete.isPresent()) {
-            tableModel.removeViking(vikingToDelete.get());
-        }
+        Viking withId = new Viking(
+                nextId++,
+                v.name(),
+                v.age(),
+                v.heightCm(),
+                v.hairColor(),
+                v.beardStyle(),
+                v.equipment()
+        );
+
+        storage.put(withId.id(), withId);
+
         
+        if (vikingListener != null) {
+            vikingListener.onVikingCreated(withId);
+        }
+
+        return withId;
+    }
+
+    public boolean deleteViking(int id) {
+        boolean removed = storage.remove(id) != null;
+
+        if (removed && vikingListener != null) {
+            vikingListener.onVikingDeleted(id);
+        }
+
         return removed;
     }
 
-    public boolean deleteByIndex(int index) {
-        if (index < 0 || index >= vikings.size()) {
-            return false;
-        }
-        
-        Viking removedViking = vikings.remove(index);
+    public Viking updateViking(int id, Viking viking) {
+        Viking updated = new Viking(
+                id,
+                viking.name(),
+                viking.age(),
+                viking.heightCm(),
+                viking.hairColor(),
+                viking.beardStyle(),
+                viking.equipment()
+        );
 
-        if (tableModel != null) {
-            tableModel.removeViking(removedViking);
-        }
-        
-        return true;
-    }
+        storage.put(id, updated);
 
-    public boolean updateViking(String name, Viking newVikingData) {
-        for (int i = 0; i < vikings.size(); i++) {
-            if (vikings.get(i).name().equalsIgnoreCase(name)) {
-                Viking oldViking = vikings.get(i);
-                vikings.set(i, newVikingData);
-
-                if (tableModel != null) {
-                    tableModel.updateViking(oldViking, newVikingData);
-                }
-                
-                return true;
-            }
+        if (vikingListener != null) {
+            vikingListener.onVikingUpdated(updated);
         }
-        return false;
-    }
 
-    public boolean updateVikingByIndex(int index, Viking newVikingData) {
-        if (index < 0 || index >= vikings.size()) {
-            return false;
-        }
-        
-        Viking oldViking = vikings.get(index);
-        vikings.set(index, newVikingData);
-
-        if (tableModel != null) {
-            tableModel.updateViking(oldViking, newVikingData);
-        }
-        
-        return true;
+        return updated;
     }
 }

@@ -3,11 +3,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package ru.mephi.vikingdemo.controller;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.mephi.vikingdemo.gui.VikingDesktopFrame;
+import ru.mephi.vikingdemo.model.Viking;
 import ru.mephi.vikingdemo.service.VikingService;
+import javax.swing.*;
 
 /**
  *
@@ -15,19 +15,49 @@ import ru.mephi.vikingdemo.service.VikingService;
  */
 @Component
 public class VikingListener {
-    private VikingService service;
+
+    private final VikingService service;
     private VikingDesktopFrame gui;
 
-    @Autowired
     public VikingListener(VikingService service) {
         this.service = service;
     }
-    
-    public void setGui(VikingDesktopFrame gui){
+
+    public void setGui(VikingDesktopFrame gui) {
         this.gui = gui;
     }
 
-    void testAdd() {
-        gui.addNewViking(service.createRandomViking());
+
+    public void onVikingCreated(Viking viking) {
+        if (gui != null) {
+            SwingUtilities.invokeLater(() -> {
+                gui.addNewViking(viking);
+            });
+        }
+    }
+
+
+    public void onVikingDeleted(int id) {
+        if (gui != null) {
+            SwingUtilities.invokeLater(() -> {
+                gui.removeViking(id);
+            });
+        }
+    }
+
+
+    public void onVikingUpdated(Viking viking) {
+        if (gui != null) {
+            SwingUtilities.invokeLater(() -> {
+                gui.updateViking(viking);
+            });
+        }
+    }
+
+
+    public void testAdd() {
+        if (gui != null) {
+            gui.addNewViking(service.createRandomViking());
+        }
     }
 }
